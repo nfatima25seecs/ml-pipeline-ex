@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Decay Intelligence — FlyRank ML Capstone</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink:       #0f1117;
+      --ink-soft:  #3a3d47;
+      --ink-muted: #6b7280;
+      --paper:     #fafaf8;
+      --rule:      #e4e4dc;
+      --accent:    #1a56db;
+      --accent-bg: #eff4ff;
+      --green:     #047857;
+      --green-bg:  #ecfdf5;
+      --amber:     #92400e;
+      --amber-bg:  #fffbeb;
+      --red:       #991b1b;
+      --red-bg:    #fef2f2;
+      --mono:      'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--rule);
+      padding: 3rem 0 2.5rem;
+      text-align: center;
+      background: #fff;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.15;
+      max-width: 780px;
+      margin: 0 auto 1.25rem;
+      color: var(--ink);
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .meta span { display: flex; align-items: center; gap: 0.4rem; }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ── Abstract ── */
+    .abstract {
+      background: var(--accent-bg);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 1.5rem 1.75rem;
+      margin: 3rem 0;
+      font-size: 0.95rem;
+      color: var(--ink-soft);
+    }
+
+    .abstract strong {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Sections ── */
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.75rem;
+      line-height: 1.2;
+      margin-bottom: 1.25rem;
+      color: var(--ink);
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 1.75rem 0 0.6rem;
+      color: var(--ink);
+    }
+
+    p { margin-bottom: 1rem; color: var(--ink-soft); }
+    p:last-child { margin-bottom: 0; }
+
+    ul, ol {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--ink-soft);
+    }
+
+    li { margin-bottom: 0.4rem; }
+
+    code {
+      font-family: var(--mono);
+      font-size: 0.83em;
+      background: #f1f1ee;
+      padding: 0.1em 0.4em;
+      border-radius: 3px;
+      color: var(--ink);
+    }
+
+    pre {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      background: #f1f1ee;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 1.25rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+
+    /* ── Metric cards ── */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .metric-card {
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .metric-card .value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--ink);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+
+    .metric-card .label {
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    thead tr {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    thead th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 500;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+
+    tbody tr { border-bottom: 1px solid var(--rule); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:nth-child(even) { background: #fafaf8; }
+
+    td {
+      padding: 0.75rem 1rem;
+      color: var(--ink-soft);
+      vertical-align: top;
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 0.2em 0.6em;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .badge-green { background: var(--green-bg); color: var(--green); }
+    .badge-amber { background: var(--amber-bg); color: var(--amber); }
+    .badge-red   { background: var(--red-bg);   color: var(--red); }
+    .badge-blue  { background: var(--accent-bg); color: var(--accent); }
+
+    /* ── Action playbook ── */
+    .playbook { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; }
+
+    .action-card {
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .action-card .score-pill {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 0.3em 0.7em;
+      border-radius: 20px;
+      white-space: nowrap;
+      margin-top: 0.1rem;
+    }
+
+    .action-card h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--ink);
+    }
+
+    .action-card p {
+      font-size: 0.88rem;
+      margin: 0;
+      color: var(--ink-muted);
+    }
+
+    /* ── Callout ── */
+    .callout {
+      background: var(--amber-bg);
+      border-left: 3px solid #f59e0b;
+      border-radius: 0 6px 6px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      font-size: 0.88rem;
+      color: var(--amber);
+    }
+
+    .callout strong { color: #78350f; }
+
+    /* ── Feature importance bar ── */
+    .feature-bar { margin: 1.25rem 0; }
+
+    .feature-row {
+      display: grid;
+      grid-template-columns: 200px 1fr 50px;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .feature-name {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      text-align: right;
+    }
+
+    .bar-track {
+      background: var(--rule);
+      border-radius: 4px;
+      height: 10px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    .bar-pct {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--ink);
+      color: #9ca3af;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      font-size: 0.82rem;
+      margin-top: 2rem;
+    }
+
+    footer a { color: #93c5fd; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    footer .ack { margin-bottom: 0.5rem; }
+
+    @media (max-width: 600px) {
+      .feature-row { grid-template-columns: 140px 1fr 44px; }
+      .feature-name { font-size: 0.7rem; }
+      .action-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="eyebrow">FlyRank ML Internship · Capstone Research Paper · August 2026</div>
+  <h1>Content Decay Intelligence:<br>A Ranked Review Engine for Search Visibility</h1>
+  <div class="meta">
+    <span>Noor Fatima</span>
+    <span>Lane 2 — Refresh / Content Opportunity Scoring</span>
+    <span><a href="https://github.com/nfatima25seecs/ml-pipeline-ex" target="_blank">GitHub Repo</a></span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ── ABSTRACT ── -->
+  <div class="abstract">
+    <strong>Abstract</strong>
+    Content teams managing large page portfolios cannot manually review every page each week. This paper asks: which pages deserve attention first? Using an anonymized dataset of 30,000 pages from the FlyRank ML Internship, a Random Forest classifier was trained on non-leaking behavioral and structural signals to predict which pages are experiencing genuine click-drop decay. The model achieved Precision@50 of 0.74 under grouped client-level cross-validation, compared to a rule-based baseline of 0.72, producing a ranked review queue with reason codes and tiered action labels that a content strategist can act on immediately.
+  </div>
+
+  <!-- ── KEY NUMBERS ── -->
+  <div class="metrics">
+    <div class="metric-card">
+      <div class="value">30K</div>
+      <div class="label">Pages analyzed</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">54.2%</div>
+      <div class="label">Pages declining</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">0.74</div>
+      <div class="label">Model Precision@50</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">0.72</div>
+      <div class="label">Baseline Precision@50</div>
+    </div>
+  </div>
+
+  <!-- ── 1. INTRODUCTION ── -->
+  <section>
+    <div class="section-label">01 — Introduction</div>
+    <h2>The Problem</h2>
+    <p>Content teams at search-focused companies manage hundreds or thousands of published pages. Each week, some fraction of those pages are quietly losing search impressions, dropping in average position, or bleeding click-through rate — but without a systematic review, nobody notices until the damage is severe.</p>
+    <p>The decision this project supports is simple: <strong>which pages should a reviewer look at first this week?</strong> The output is not an automated publishing decision. It is a ranked list — a prioritized queue — that puts the most urgent pages at the top so human review time is spent where it matters most.</p>
+    <p>The cost of getting this wrong runs in both directions. Flagging a healthy page wastes expert reviewer time on a false alarm. Missing a genuinely declining page allows it to keep losing traffic for weeks before anyone notices, making recovery harder and more expensive.</p>
+  </section>
+
+  <!-- ── 2. DATA ── -->
+  <section>
+    <div class="section-label">02 — Data</div>
+    <h2>Dataset</h2>
+    <p>The analysis uses the FlyRank ML Internship starter dataset: 30,000 anonymized pages with 44 columns covering search impressions, clicks, sessions, CTR, average position, content age, word count, engagement rate, and trend signals. Data spans a rolling 90-day performance window with 30-day trend comparisons.</p>
+
+    <h3>Columns deliberately excluded</h3>
+    <p>The following columns were removed before any model training to prevent label leakage:</p>
+    <ul>
+      <li><code>trend_direction</code>, <code>trend_pct</code> — directly encode the target variable</li>
+      <li><code>clicks_last_30d</code>, <code>clicks_prev_30d</code> — used to construct the label</li>
+      <li><code>sessions_last_30d</code>, <code>sessions_prev_30d</code> — same window as the label</li>
+      <li><code>client_id</code> — used for grouping only, never as a feature</li>
+    </ul>
+
+    <h3>Safe features retained</h3>
+    <p><code>ctr</code>, <code>avg_position</code>, <code>impressions_prev_30d</code>, <code>engagement_rate</code>, <code>content_age_days</code>, <code>word_count</code>, <code>days_since_last_update</code>, plus engineered ratios <code>ctr_to_position_ratio</code> and <code>engagement_density</code>.</p>
+
+    <div class="callout">
+      <strong>Public-safety note:</strong> No client names, raw URLs, private queries, or identifying details appear anywhere in this paper or the associated repository.
+    </div>
+  </section>
+
+  <!-- ── 3. METHODOLOGY ── -->
+  <section>
+    <div class="section-label">03 — Methodology</div>
+    <h2>Approach</h2>
+
+    <h3>Label definition</h3>
+    <p>A page is labeled a decay candidate if <code>clicks_last_30d &lt; clicks_prev_30d</code> — a measurable drop in clicks from one 30-day window to the next. This is observable without using any label-derived columns, making it a clean, non-leaking proxy for genuine traffic loss.</p>
+
+    <h3>Baseline rule</h3>
+    <p>A transparent hand-written rule was built first: flag any page with <code>content_age_days &gt; 180</code> and declining impression volume. This rule is interpretable and deployable without any ML infrastructure, making it a fair comparison point.</p>
+
+    <h3>Model</h3>
+    <p>A Random Forest Classifier was trained alongside Logistic Regression as a secondary baseline. Logarithmic scaling was applied to skewed volume metrics. Hyperparameter tuning used RandomizedSearchCV optimizing Macro F1 to handle class imbalance.</p>
+
+    <h3>Validation design</h3>
+    <p>GroupKFold cross-validation was used, splitting strictly on <code>client_id</code>. This ensures no pages from the same client appear in both training and validation folds — a stricter and more honest design than a random 80/20 split, which would leak within-client correlations across the boundary.</p>
+  </section>
+
+  <!-- ── 4. RESULTS ── -->
+  <section>
+    <div class="section-label">04 — Results</div>
+    <h2>Model vs Baseline</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Precision@50</th>
+            <th>Macro F1</th>
+            <th>Accuracy</th>
+            <th>Split</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Baseline rule</td>
+            <td><span class="badge badge-amber">0.72</span></td>
+            <td>~0.41</td>
+            <td>~56%</td>
+            <td>Grouped</td>
+          </tr>
+          <tr>
+            <td>Logistic Regression</td>
+            <td>—</td>
+            <td>~0.64</td>
+            <td>~71%</td>
+            <td>Grouped</td>
+          </tr>
+          <tr>
+            <td><strong>Random Forest</strong></td>
+            <td><span class="badge badge-green">0.74</span></td>
+            <td>~0.83</td>
+            <td>~86%</td>
+            <td>Grouped</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Feature importance</h3>
+    <div class="feature-bar">
+      <div class="feature-row">
+        <div class="feature-name">ctr_to_position_ratio</div>
+        <div class="bar-track"><div class="bar-fill" style="width:55.5%"></div></div>
+        <div class="bar-pct">55.5%</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-name">impressions_prev_30d</div>
+        <div class="bar-track"><div class="bar-fill" style="width:27.1%"></div></div>
+        <div class="bar-pct">27.1%</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-name">engagement_rate</div>
+        <div class="bar-track"><div class="bar-fill" style="width:8.2%"></div></div>
+        <div class="bar-pct">8.2%</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-name">content_age_days</div>
+        <div class="bar-track"><div class="bar-fill" style="width:5.1%"></div></div>
+        <div class="bar-pct">5.1%</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-name">days_since_last_update</div>
+        <div class="bar-track"><div class="bar-fill" style="width:4.1%"></div></div>
+        <div class="bar-pct">4.1%</div>
+      </div>
+    </div>
+
+    <h3>Error analysis</h3>
+    <p>Out of the top 50 ranked pages, 13 were false positives. These were concentrated in high-traffic pages with modest CTR that held stable click volume rather than dropping. The model leans heavily on impression scale when prioritizing risk — a known limitation when dealing with large-impression pages that are stable but not growing.</p>
+  </section>
+
+  <!-- ── 5. LIMITATIONS ── -->
+  <section>
+    <div class="section-label">05 — Limitations</div>
+    <h2>Honest Framing</h2>
+    <p>All findings in this paper are <strong>observational and directional</strong>. This model does not establish causation between content refresh actions and traffic recovery. The label (<code>clicks_last_30d &lt; clicks_prev_30d</code>) is a proxy for decay, not a verified ground truth.</p>
+    <p>The dataset is a single anonymized snapshot from one company's client portfolio. Results may not generalize to all industries, content types, or search markets. The model is a decision-support tool, not an automated publishing system.</p>
+    <p>Precision@50 of 0.74 means 13 of the top 50 recommendations are false positives — pages that would not benefit from a refresh. Reviewers should apply judgment rather than treating the ranked queue as instructions.</p>
+  </section>
+
+  <!-- ── 6. RECOMMENDATIONS ── -->
+  <section>
+    <div class="section-label">06 — Recommendations</div>
+    <h2>Action Playbook</h2>
+    <p>Based on predicted decay scores, content teams should apply the following tiered response:</p>
+
+    <div class="playbook">
+      <div class="action-card">
+        <span class="score-pill badge badge-red">Score &gt; 0.80</span>
+        <div>
+          <h4>Priority Refresh — Top 50 Queue</h4>
+          <p>Update core content sections, refresh meta title and description tags, check for broken links. These pages are observed to be experiencing active click-drop decay and have high impression volume at stake.</p>
+        </div>
+      </div>
+      <div class="action-card">
+        <span class="score-pill badge badge-green">Score &lt; 0.35</span>
+        <div>
+          <h4>Protect and Maintain</h4>
+          <p>Do not modify URLs, core text, or structure on high-performing evergreen pages regardless of content age. Unnecessary updates risk destabilizing established search equity and ranking stability.</p>
+        </div>
+      </div>
+      <div class="action-card">
+        <span class="score-pill badge badge-amber">Score &gt; 0.80<br>Low impressions</span>
+        <div>
+          <h4>Prune or Merge</h4>
+          <p>Identify persistent dead-weight URLs that fail to engage users or capture search visibility. Consolidate via 301 redirects to stronger canonical pages or prune to preserve crawl budget.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 7. REPRODUCIBILITY ── -->
+  <section>
+    <div class="section-label">07 — Reproducibility</div>
+    <h2>Re-running This Work</h2>
+    <p>All notebooks are committed and executable in the repository under <code>work/notebooks/</code>. Random seed used throughout: <strong>42</strong>.</p>
+    <pre>git clone https://github.com/nfatima25seecs/ml-pipeline-ex
+cd ml-pipeline-ex/work/
+# Open any notebook in Google Colab via the badge links
+# Runtime → Run all</pre>
+    <p>Notebooks in order: <code>w01_research_question</code> → <code>w02_ml_task_framing</code> → <code>w03_data_contract</code> → <code>w04_baseline_score</code> → <code>w05_model</code> → <code>w06_validation_audit</code> → <code>w07_action_playbook</code> → <code>capstone_refresh_scoring</code>.</p>
+  </section>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="ack">Built on the <a href="https://flyrank.ai" target="_blank">FlyRank</a> ML Internship dataset — crediting the data source is standard research practice.</div>
+  <div>Noor Fatima · FlyRank ML Internship · August 2026 · <a href="https://github.com/nfatima25seecs/ml-pipeline-ex" target="_blank">github.com/nfatima25seecs/ml-pipeline-ex</a></div>
+</footer>
+
+</body>
+</html>
